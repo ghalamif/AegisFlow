@@ -22,6 +22,60 @@ import (
 	"github.com/ghalamif/AegisFlow/internal/ports"
 )
 
+// EdgeRuntimeOption customizes the dependencies used by EdgeRuntime.
+type EdgeRuntimeOption func(*runtimeOverrides)
+
+type runtimeOverrides struct {
+	collector     Collector
+	sink          Sink
+	transformer   Transformer
+	wal           WAL
+	queue         SampleQueue
+	observability Observability
+}
+
+// WithCollector injects a custom collector implementation (MQTT, Modbus, simulators, etc.).
+func WithCollector(col Collector) EdgeRuntimeOption {
+	return func(o *runtimeOverrides) {
+		o.collector = col
+	}
+}
+
+// WithSink injects a custom sink so samples can be sent to any database or API.
+func WithSink(s Sink) EdgeRuntimeOption {
+	return func(o *runtimeOverrides) {
+		o.sink = s
+	}
+}
+
+// WithTransformer overrides the default no-op transformer.
+func WithTransformer(t Transformer) EdgeRuntimeOption {
+	return func(o *runtimeOverrides) {
+		o.transformer = t
+	}
+}
+
+// WithWAL lets callers bring their own WAL implementation or reuse an existing instance.
+func WithWAL(w WAL) EdgeRuntimeOption {
+	return func(o *runtimeOverrides) {
+		o.wal = w
+	}
+}
+
+// WithSampleQueue injects a custom queue implementation (e.g., lock-free, sharded).
+func WithSampleQueue(q SampleQueue) EdgeRuntimeOption {
+	return func(o *runtimeOverrides) {
+		o.queue = q
+	}
+}
+
+// WithObservability plugs in a custom observability backend (OpenTelemetry, structured logs, etc.).
+func WithObservability(obs Observability) EdgeRuntimeOption {
+	return func(o *runtimeOverrides) {
+		o.observability = obs
+	}
+}
+
 // EdgeRuntime wires up the collector → WAL → queue → sink pipeline and exposes
 // simple lifecycle hooks for embedding AegisFlow inside any Go service.
 type EdgeRuntime struct {
@@ -40,35 +94,86 @@ type EdgeRuntime struct {
 }
 
 // NewEdgeRuntime bootstraps the default adapters (OPC UA collector, file WAL,
-// in-memory queue, Timescale sink, Prometheus observability).
-func NewEdgeRuntime(cfg *Config) (*EdgeRuntime, error) {
+// in-memory queue, Timescale sink, Prometheus observability). Callers can use
+// EdgeRuntimeOption values to override any dependency and point AegisFlow at
+// custom collectors, sinks, or telemetry backends.
+func NewEdgeRuntime(cfg *Config, opts ...EdgeRuntimeOption) (*EdgeRuntime, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("config is required")
 	}
-	obs := observability.NewPromObs()
 
-	walAdapter, err := wal.NewFileWAL(cfg.WAL.Dir)
-	if err != nil {
-		return nil, err
+	var overrides runtimeOverrides
+	for _, opt := range opts {
+		if opt != nil {
+			opt(&overrides)
+		}
 	}
 
-	q := queue.NewMemQueue(cfg.Policy.MaxQueueLen)
+	obs := overrides.observability
+	if obs == nil {
+		obs = observability.NewPromObs()
+	}
+
+	var (
+		walAdapter ports.WAL
+		err        error
+	)
+	if overrides.wal != nil {
+		walAdapter = overrides.wal
+	} else {
+		walAdapter, err = wal.NewFileWAL(cfg.WAL.Dir)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if walAdapter == nil {
+		return nil, fmt.Errorf("wal adapter is nil")
+	}
+
+	q := overrides.queue
+	if q == nil {
+		q = queue.NewMemQueue(cfg.Policy.MaxQueueLen)
+	}
+	if q == nil {
+		return nil, fmt.Errorf("sample queue is nil")
+	}
+
 	if err := replayWALIntoQueue(walAdapter, q, cfg.Policy, obs); err != nil {
 		return nil, err
 	}
 
-	col, err := opcua.NewCollector(cfg.OPCUA)
-	if err != nil {
-		return nil, err
+	col := overrides.collector
+	if col == nil {
+		col, err = opcua.NewCollector(cfg.OPCUA)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if col == nil {
+		return nil, fmt.Errorf("collector is nil")
 	}
 
-	db, err := sql.Open("postgres", cfg.Timescale.ConnString)
-	if err != nil {
-		return nil, err
+	var (
+		db  *sql.DB
+		snk ports.Sink
+	)
+	if overrides.sink != nil {
+		snk = overrides.sink
+	} else {
+		db, err = sql.Open("postgres", cfg.Timescale.ConnString)
+		if err != nil {
+			return nil, err
+		}
+		snk = sink.NewTimescaleSink(db, cfg.Timescale.Table)
+	}
+	if snk == nil {
+		return nil, fmt.Errorf("sink is nil")
 	}
 
-	tsSink := sink.NewTimescaleSink(db, cfg.Timescale.Table)
-	tr := &noopTransformer{}
+	tr := overrides.transformer
+	if tr == nil {
+		tr = &noopTransformer{}
+	}
 
 	return &EdgeRuntime{
 		cfg:         cfg,
@@ -78,7 +183,7 @@ func NewEdgeRuntime(cfg *Config) (*EdgeRuntime, error) {
 		queue:       q,
 		collector:   col,
 		transformer: tr,
-		sink:        tsSink,
+		sink:        snk,
 		db:          db,
 	}, nil
 }

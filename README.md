@@ -103,18 +103,117 @@ cfg := &aegisflow.Config{
 
 Behind the scenes the runtime still uses the battle-tested internal adapters, but your application only needs the high-level APIs exposed through `pkg/aegisflow`.
 
-### Swap in your own sink (QuestDB, Pinot, etc.)
+### Connect AegisFlow to anything
 
-The sink is just an interface:
+The public `pkg/aegisflow` module now re-exports every pipeline interface, so you can plug in your own collectors, sinks, transformers, queues, WAL, or observability stack without touching the internal packages.
+
+#### Custom sinks
 
 ```go
-type Sink interface {
-    WriteBatch(samples []*domain.Sample) error
-    Name() string
+type questSink struct {
+    client *questdb.Client
+}
+
+func (q *questSink) WriteBatch(samples []*aegisflow.PipelineSample) error {
+    // convert + send to QuestDB, Pinot, Influx, HTTP, etc.
+    return q.client.Write(samples)
+}
+
+func (q *questSink) Name() string { return "questdb" }
+
+rt, err := aegisflow.NewEdgeRuntime(cfg, aegisflow.WithSink(&questSink{client: questClient}))
+```
+
+#### Custom collectors (MQTT, Modbus, simulators, ...)
+
+```go
+type mqttCollector struct {
+    sub mqtt.Subscription
+}
+
+func (m *mqttCollector) Start(out chan<- *aegisflow.PipelineSample) error {
+    go func() {
+        for msg := range m.sub.Messages() {
+            out <- &aegisflow.PipelineSample{
+                SensorID:  msg.Topic,
+                Timestamp: msg.Timestamp,
+                Values:    map[string]float64{"value": msg.Value},
+            }
+        }
+    }()
+    return nil
+}
+
+func (m *mqttCollector) Stop() error { return m.sub.Close() }
+
+rt, err := aegisflow.NewEdgeRuntime(
+    cfg,
+    aegisflow.WithCollector(&mqttCollector{sub: mqttSub}),
+    aegisflow.WithSink(&questSink{client: questClient}),
+)
+```
+
+Need deeper control? Chain `aegisflow.WithTransformer`, `WithSampleQueue`, `WithWAL`, or `WithObservability` to swap in custom units/converters, lock-free queues, cloud WALs, or OpenTelemetry exporters. The built-in OPC UA collector + Timescale sink remain the defaults if you skip overrides.
+
+#### No database yet? Use callbacks or channels
+
+If you just want AegisFlow to hand you durable, ordered batches until you decide where to persist them, wrap a function or channel with the new helpers:
+
+```go
+// Option 1: callback sink – do whatever you want with each batch.
+printer := aegisflow.NewCallbackSink("stdout", func(batch []aegisflow.Sample) error {
+    for _, s := range batch {
+        fmt.Printf("%s %s => %+v\n", s.Timestamp.Format(time.RFC3339), s.SensorID, s.Values)
+    }
+    return nil
+})
+
+// Option 2: channel sink – hand batches to another goroutine/service.
+chanSink, batches, closeBatches := aegisflow.NewChannelSink("fanout", 128)
+go func() {
+    defer closeBatches()
+    for batch := range batches {
+        forwardToFutureDB(batch)
+    }
+}()
+
+rt, err := aegisflow.NewEdgeRuntime(
+    cfg,
+    aegisflow.WithSink(printer),        // or aegisflow.WithSink(chanSink)
+)
+```
+
+Both helpers sit on top of the WAL/queue guarantees, so you can sit between OPC UA and an “unknown DB” today and decide on the final persistence layer later without rewriting the pipeline.
+
+### Prefer a one-liner API? Use Conf → StreamIN → StreamOUT
+
+For new users who only want high-level knobs, the `Flow` builder exposes the pattern you described:
+
+```go
+flow, err := aegisflow.Conf("./data/config.yaml")
+if err != nil {
+    log.Fatal(err)
+}
+
+rt, err := flow.
+    StreamIN(aegisflow.StreamInCollector(customCollector)). // optional; defaults to OPC UA config
+    StreamOUT(
+        aegisflow.StreamOutCallback("stdout", func(batch []aegisflow.Sample) error {
+            return forwardToFancyDB(batch)
+        }),
+    )
+if err != nil {
+    log.Fatal(err)
+}
+
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+if err := rt.Run(ctx); err != nil {
+    log.Fatal(err)
 }
 ```
 
-Drop your adapter into `ports.Sink`, point the runtime at it, and the rest of the pipeline keeps running unchanged. The provided Timescale adapter is simply the default implementation.
+Need even less ceremony? Call `flow.Run(ctx, aegisflow.StreamOutSink(mySink))` and the builder will create + run the runtime in one line.
 
 ## Industry-Ready Features
 
