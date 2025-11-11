@@ -51,7 +51,7 @@ Kill the process mid-stream and run the command again; the startup log will repo
 The repo now publishes a public package, so integrating it is as familiar as adding any other Go dependency:
 
 ```bash
-go get github.com/ghalamif/AegisFlow/pkg/aegisflow@latest
+go get github.com/ghalamif/AegisFlow@latest
 ```
 
 ```go
@@ -61,7 +61,7 @@ import (
     "context"
     "log"
 
-    "github.com/ghalamif/AegisFlow/pkg/aegisflow"
+    "github.com/ghalamif/AegisFlow"
 )
 
 func main() {
@@ -101,11 +101,11 @@ cfg := &aegisflow.Config{
 }
 ```
 
-Behind the scenes the runtime still uses the battle-tested internal adapters, but your application only needs the high-level APIs exposed through `pkg/aegisflow`.
+Behind the scenes the runtime still uses the battle-tested internal adapters, but your application only needs the high-level APIs exposed through the public `github.com/ghalamif/AegisFlow` module (also available under `pkg/aegisflow` if you prefer explicit paths).
 
 ### Connect AegisFlow to anything
 
-The public `pkg/aegisflow` module now re-exports every pipeline interface, so you can plug in your own collectors, sinks, transformers, queues, WAL, or observability stack without touching the internal packages.
+The public module now re-exports every pipeline interface, so you can plug in your own collectors, sinks, transformers, queues, WAL, or observability stack without touching the internal packages.
 
 #### Custom sinks
 
