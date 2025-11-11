@@ -3,8 +3,8 @@ package observability
 import (
 	"log"
 
-	"aegisflow/internal/domain"
-	"aegisflow/internal/ports"
+	"github.com/ghalamif/AegisFlow/internal/domain"
+	"github.com/ghalamif/AegisFlow/internal/ports"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

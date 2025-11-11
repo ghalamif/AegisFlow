@@ -33,6 +33,9 @@ The entire flow is config-driven (`data/config.yaml`), so swapping PLC endpoints
 ```bash
 # edit data/config.yaml with your OPC UA endpoint + Timescale credentials
 go run ./cmd/aegis-edge -config ./data/config.yaml
+
+# or install the CLI globally, just like any other Go tool:
+go install github.com/ghalamif/AegisFlow/cmd/aegis-edge@latest
 ```
 
 Monitor progress:
@@ -45,23 +48,60 @@ Kill the process mid-stream and run the command again; the startup log will repo
 
 ## Use It Inside Your Project
 
-AegisFlow is packaged as a Go module (`module aegisflow`). You can embed the pipelines inside another service:
+The repo now publishes a public package, so integrating it is as familiar as adding any other Go dependency:
+
+```bash
+go get github.com/ghalamif/AegisFlow/pkg/aegisflow@latest
+```
 
 ```go
+package main
+
 import (
-    "aegisflow/internal/app/pipeline"
-    "aegisflow/internal/ports"
+    "context"
+    "log"
+
+    "github.com/ghalamif/AegisFlow/pkg/aegisflow"
 )
 
-func boot(myCollector ports.Collector, wal ports.WAL, queue ports.SampleQueue, sink ports.Sink, pol ports.Policy, obs ports.Observability, tr ports.Transformer) {
-    if err := pipeline.RunEdgePipeline(myCollector, wal, queue, pol, obs); err != nil {
-        panic(err)
+func main() {
+    cfg, err := aegisflow.LoadConfig("data/config.yaml")
+    if err != nil {
+        log.Fatal(err)
     }
-    go pipeline.RunIngestPipeline(wal, queue, tr, sink, pol, obs)
+
+    rt, err := aegisflow.NewEdgeRuntime(cfg)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+
+    if err := rt.Run(ctx); err != nil {
+        log.Fatal(err)
+    }
 }
 ```
 
-Bring your own adapters (QuestDB, DLQ, rate-limiters) by implementing the port interfaces under `internal/ports`. When you are ready to share the library outside the repo, move reusable packages from `internal` to `pkg/` or a top-level module path.
+Need to tweak WAL thresholds or OPC UA nodes programmatically? Use the exported aliases:
+
+```go
+cfg := &aegisflow.Config{
+    Policy: aegisflow.Policy{
+        MaxQueueLen: 200_000,
+        OnQueueFull: "block",
+    },
+    OPCUA: aegisflow.OPCUAConfig{
+        Endpoint: "opc.tcp://plc:4840",
+        Nodes: []aegisflow.OPCUANodeConfig{
+            {NodeID: "ns=2;s=Demo.Dynamic.Scalar.Double"},
+        },
+    },
+}
+```
+
+Behind the scenes the runtime still uses the battle-tested internal adapters, but your application only needs the high-level APIs exposed through `pkg/aegisflow`.
 
 ## Industry-Ready Features
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"aegisflow/internal/domain"
-	"aegisflow/internal/ports"
+	"github.com/ghalamif/AegisFlow/internal/domain"
+	"github.com/ghalamif/AegisFlow/internal/ports"
 )
 
 func RunEdgePipeline(col ports.Collector, wal ports.WAL, q ports.SampleQueue, pol ports.Policy, obs ports.Observability) error {

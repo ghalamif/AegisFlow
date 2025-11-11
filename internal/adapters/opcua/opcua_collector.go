@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"aegisflow/internal/domain"
-	"aegisflow/internal/ports"
+	"github.com/ghalamif/AegisFlow/internal/domain"
+	"github.com/ghalamif/AegisFlow/internal/ports"
 
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/ua"

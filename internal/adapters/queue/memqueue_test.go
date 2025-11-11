@@ -3,7 +3,7 @@ package queue
 import (
 	"testing"
 
-	"aegisflow/internal/domain"
+	"github.com/ghalamif/AegisFlow/internal/domain"
 )
 
 func TestMemQueueEnqueueDequeueOrder(t *testing.T) {

@@ -1,4 +1,4 @@
-module aegisflow
+module github.com/ghalamif/AegisFlow
 
 go 1.23.0
 

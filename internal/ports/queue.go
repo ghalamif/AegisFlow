@@ -1,6 +1,6 @@
 package ports
 
-import "aegisflow/internal/domain"
+import "github.com/ghalamif/AegisFlow/internal/domain"
 
 type QueuedSample struct {
 	ID     WALEntryID

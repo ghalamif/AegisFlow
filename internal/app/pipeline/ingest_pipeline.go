@@ -3,8 +3,8 @@ package pipeline
 import (
 	"time"
 
-	"aegisflow/internal/domain"
-	"aegisflow/internal/ports"
+	"github.com/ghalamif/AegisFlow/internal/domain"
+	"github.com/ghalamif/AegisFlow/internal/ports"
 )
 
 func RunIngestPipeline(wal ports.WAL, q ports.SampleQueue, tr ports.Transformer, sink ports.Sink, pol ports.Policy, obs ports.Observability) {

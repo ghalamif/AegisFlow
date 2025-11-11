@@ -3,8 +3,8 @@ package queue
 import (
 	"sync"
 
-	"aegisflow/internal/domain"
-	"aegisflow/internal/ports"
+	"github.com/ghalamif/AegisFlow/internal/domain"
+	"github.com/ghalamif/AegisFlow/internal/ports"
 )
 
 // MemQueue is a bounded in-memory queue that preserves FIFO ordering.

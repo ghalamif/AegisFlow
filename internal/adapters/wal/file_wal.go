@@ -13,8 +13,8 @@ import (
 	"strings"
 	"sync"
 
-	"aegisflow/internal/domain"
-	"aegisflow/internal/ports"
+	"github.com/ghalamif/AegisFlow/internal/domain"
+	"github.com/ghalamif/AegisFlow/internal/ports"
 )
 
 const recordHeaderLen = 12

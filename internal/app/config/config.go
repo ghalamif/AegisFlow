@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"aegisflow/internal/adapters/opcua"
-	"aegisflow/internal/ports"
+	"github.com/ghalamif/AegisFlow/internal/adapters/opcua"
+	"github.com/ghalamif/AegisFlow/internal/ports"
 	"gopkg.in/yaml.v3"
 )
 
