@@ -1,0 +1,29 @@
+policy:
+  max_wal_size_bytes: 10737418240
+  max_queue_len: 100000
+  max_batch_size: 5000
+  idle_sleep: 5ms
+  on_wal_full: block
+  on_queue_full: block
+
+opcua:
+  endpoint: opc.tcp://localhost:4840
+  security_mode: None
+  security_policy: None
+  application_name: AegisFlow Edge
+  publish_interval: 250ms
+  sampling_interval: 0s
+  nodes:
+    - node_id: "ns=2;s=Demo.Dynamic.Scalar.Double"
+      sensor_id: demo_scalar
+      value_key: value
+
+timescale:
+  conn_string: "postgres://aegis:aegis@localhost:5432/aegis?sslmode=disable"
+  table: samples
+
+metrics:
+  addr: ":9100"
+
+wal:
+  dir: "./data/wal"
