@@ -113,9 +113,6 @@ func validateCommand(args []string) error {
 }
 
 func selectBanner() string {
-	if os.Getenv("NO_COLOR") != "" {
-		return bannerPlain
-	}
 	return bannerColor
 }
 
