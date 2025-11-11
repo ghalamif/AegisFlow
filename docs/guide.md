@@ -9,7 +9,7 @@ Welcome—this guide is designed to walk you through *every* AegisFlow feature u
 Before writing a single line of code, picture the journey your telemetry takes:
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': 'var(--color-canvas-default)', 'primaryTextColor': 'var(--color-fg-default)', 'lineColor': 'var(--color-border-default)', 'secondaryColor': 'var(--color-accent-subtle)'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'background': 'transparent', 'primaryColor': '#f6f8fa', 'primaryBorderColor': '#57606a', 'primaryTextColor': '#24292f', 'lineColor': '#57606a', 'secondaryColor': '#d0d7de'}}}%%
 flowchart LR
     OPCUA["Collector<br/>OPC UA / MQTT / etc."] --> WAL["Write-Ahead Log"]
     WAL --> Queue["Bounded Queue"]
@@ -140,7 +140,7 @@ flow.Run(ctx, aegisflow.StreamOutSink(chanSink))
 Mermaid view:
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': 'var(--color-canvas-default)', 'primaryTextColor': 'var(--color-fg-default)', 'lineColor': 'var(--color-border-default)', 'secondaryColor': 'var(--color-accent-subtle)'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'background': 'transparent', 'primaryColor': '#f6f8fa', 'primaryBorderColor': '#57606a', 'primaryTextColor': '#24292f', 'lineColor': '#57606a', 'secondaryColor': '#d0d7de'}}}%%
 flowchart LR
     Queue["Bounded Queue"] --> ChannelSink["Channel Sink"]
     ChannelSink --> WorkerA["Worker A"]
