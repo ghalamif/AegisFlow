@@ -2,6 +2,7 @@ package sink
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -38,11 +39,16 @@ func (t *TimescaleSink) WriteBatch(samples []*domain.Sample) error {
 		}
 		b.WriteString(fmt.Sprintf("($%d,$%d,$%d,$%d,$%d,$%d)",
 			len(args)+1, len(args)+2, len(args)+3, len(args)+4, len(args)+5, len(args)+6))
+		vals, err := json.Marshal(s.Values)
+		if err != nil {
+			return fmt.Errorf("marshal values: %w", err)
+		}
+
 		args = append(args,
 			s.SensorID,
 			s.Timestamp,
 			s.Seq,
-			s.Values, // consider jsonb
+			vals,
 			s.SourceNodeID,
 			s.TransformVer,
 		)
