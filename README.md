@@ -11,7 +11,7 @@
 
 ## Why This Exists
 
-Modern plants still struggle to capture every millisecond of OPC UA data when networks wobble, brokers stall, or power fails. AegisFlow Direct is the thesis project that proved we can ingest **real OPC UA streams straight into TimescaleDB with WAL-grade durability**, zero Kafka, and instrumentation you can defend in an academic viva and deploy on a factory floor the next day.
+Modern plants still struggle to capture every millisecond of OPC UA data when networks wobble, brokers stall, or power fails. AegisFlow Direct is the thesis project that proved we can ingest **real OPC UA streams straight into a TSDB (Timescale by default) with WAL-grade durability**, zero Kafka, and instrumentation you can defend in an academic viva and deploy on a factory floor the next day. Prefer QuestDB, Influx, Pinot, or an in-house historian? Just plug in a new `ports.Sink` implementation—no other code changes required.
 
 - **Clean hexagonal architecture** keeps domain logic independent from hardware quirks.
 - **WAL → bounded queue → TSDB** guarantees replayable durability.
@@ -23,7 +23,7 @@ Modern plants still struggle to capture every millisecond of OPC UA data when 
 1. **Collector (OPC UA)** – `internal/adapters/opcua` opens a resilient subscription to your PLCs, stamps every monitored node with server timestamps and per-sensor sequence numbers, and streams `domain.Sample` payloads.
 2. **Edge pipeline** – `internal/app/pipeline/edge_pipeline.go` appends samples to the WAL, enforces queue/WAL limits (block or shed based on config), and keeps metrics up to date.
 3. **Write-Ahead Log** – `internal/adapters/wal/file_wal.go` flushes entries to disk, persists commit cursors, and replays uncommitted data on restart. Power-cycle the box: every sample is re-queued before new data flows.
-4. **Ingest pipeline** – `internal/app/pipeline/ingest_pipeline.go` batches queue items, runs them through a transformer (currently a no-op hook), and writes to TimescaleDB with idempotent `(sensor_id, ts, seq)` keys.
+4. **Ingest pipeline** – `internal/app/pipeline/ingest_pipeline.go` batches queue items, runs them through a transformer (currently a no-op hook), and writes to whatever sink implements `ports.Sink` (the repo ships a Timescale adapter out of the box) with idempotent `(sensor_id, ts, seq)` keys.
 5. **Observability & health** – `cmd/aegis-edge/main.go` exposes `/metrics` & `/healthz`, publishes WAL/queue gauges, and records ingestion latency histograms so your thesis graphs are one curl away.
 
 The entire flow is config-driven (`data/config.yaml`), so swapping PLC endpoints, WAL limits, or TSDB credentials does not require recompiling.
@@ -102,6 +102,19 @@ cfg := &aegisflow.Config{
 ```
 
 Behind the scenes the runtime still uses the battle-tested internal adapters, but your application only needs the high-level APIs exposed through `pkg/aegisflow`.
+
+### Swap in your own sink (QuestDB, Pinot, etc.)
+
+The sink is just an interface:
+
+```go
+type Sink interface {
+    WriteBatch(samples []*domain.Sample) error
+    Name() string
+}
+```
+
+Drop your adapter into `ports.Sink`, point the runtime at it, and the rest of the pipeline keeps running unchanged. The provided Timescale adapter is simply the default implementation.
 
 ## Industry-Ready Features
 
