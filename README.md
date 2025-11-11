@@ -11,7 +11,7 @@
 
 ## Why This Exists
 
-Modern plants still struggle to capture every millisecond of OPC UA data when networks wobble, brokers stall, or power fails. AegisFlow Direct is the thesis project that proved we can ingest **real OPC UA streams straight into a TSDB (Timescale by default) with WAL-grade durability**, zero Kafka, and instrumentation you can defend in an academic viva and deploy on a factory floor the next day. Prefer QuestDB, Influx, Pinot, or an in-house historian? Just plug in a new `ports.Sink` implementation—no other code changes required.
+Modern plants still struggle to capture every millisecond of OPC UA data when networks wobble, brokers stall, or power fails. AegisFlow is the master’s-thesis-turned-product that proves you can stream **OPC UA → WAL → bounded queue → any TSDB (Timescale by default) with zero brokers**, Prometheus-native observability, WAL replay, and policy-driven backpressure. It’s architected for real factories (clean hexagon ports/adapters) and polished enough to drop straight into production—or the chapters of your thesis—without rewrites. Prefer QuestDB, Influx, Pinot, or an in-house historian? Swap the sink adapter; nothing else changes.
 
 - **Clean hexagonal architecture** keeps domain logic independent from hardware quirks.
 - **WAL → bounded queue → TSDB** guarantees replayable durability.
@@ -148,4 +148,4 @@ Every push triggers the CI pipeline:
 
 ---
 
-“Industrial resilience is not a chapter—it’s a feature.” AegisFlow Direct exists so your research narrative and your production roadmap stay aligned. Plug in your PLCs, watch the WAL fill with real telemetry, and build the dashboards that will convince both professors and plant managers. Let’s make broker-free ingest boringly reliable. 💡
+“Industrial resilience is not a chapter—it’s a feature.” AegisFlow Direct exists so your research narrative and your production roadmap stay aligned. Plug in your PLCs, watch the WAL fill with real telemetry, and build the dashboards that will convince both professors and plant managers. Let’s make broker-free ingest boringly reliable. 
