@@ -32,10 +32,16 @@ The entire flow is config-driven (`data/config.yaml`), so swapping PLC endpoints
 
 ```bash
 # edit data/config.yaml with your OPC UA endpoint + Timescale credentials
-go run ./cmd/aegis-edge -config ./data/config.yaml
+go run ./cmd/aegis-edge run -config ./data/config.yaml
 
 # or install the CLI globally, just like any other Go tool:
 go install github.com/ghalamif/AegisFlow/cmd/aegis-edge@latest
+
+# validate a config before deploying
+aegis-edge validate -config ./data/config.yaml
+
+# stream live metrics from the running instance
+aegis-edge stats -url http://localhost:9100/metrics -interval 1s
 ```
 
 Monitor progress:

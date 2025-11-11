@@ -86,7 +86,21 @@ _ = flow.StreamIN().Run(ctx, aegisflow.StreamOutSink(timescaleSink))
 
 ---
 
-## 4. Default Edge Runtime: Industrial Strength Out of the Box
+## 4. CLI Shortcuts
+
+Prefer the terminal? Install the CLI (`go install github.com/ghalamif/AegisFlow/cmd/aegis-edge@latest`) and use:
+
+```bash
+aegis-edge run -config ./data/config.yaml          # start the runtime
+aegis-edge validate -config ./data/config.yaml     # lint your YAML in CI
+aegis-edge stats -url http://localhost:9100/metrics -interval 1s  # live metrics stream
+```
+
+The `stats` command polls the Prometheus endpoint and prints samples ingested, queue depth, and WAL size at the interval you choose—ideal for live demos or war rooms.
+
+---
+
+## 5. Default Edge Runtime: Industrial Strength Out of the Box
 
 **What it is:** `EdgeRuntime` (`pkg/aegisflow/edge.go`) wires the production-ready OPC UA collector, file WAL, in-memory queue, transformer hook, and Timescale sink.
 
@@ -105,7 +119,7 @@ rt, _ := aegisflow.NewEdgeRuntime(
 
 ---
 
-## 5. Sink Adapters: Bridging to Unknown Databases
+## 6. Sink Adapters: Bridging to Unknown Databases
 
 When your destination database or API is undecided, use the lightweight adapters in `pkg/aegisflow/sink_adapters.go`.
 
@@ -149,7 +163,7 @@ flowchart LR
 
 ---
 
-## 6. External Publisher: Bring Your Own Data Source
+## 7. External Publisher: Bring Your Own Data Source
 
 **What it is:** `ExternalPublisher` (`pkg/aegisflow/external.go`) exposes the WAL → queue → sink durability to *your* producers, even if they are not OPC UA.
 
@@ -172,7 +186,7 @@ Use this when you already have a collector but still want WAL durability and bac
 
 ---
 
-## 7. Observability & Health
+## 8. Observability & Health
 
 **Metrics:** Every runtime exposes `/metrics` and `/healthz` (see `pkg/aegisflow/edge.go:139-188`). Counters include `aegis_samples_ingested_total`, queue length, WAL size, and ingest latency.
 
@@ -190,7 +204,7 @@ IELTS tip: always mention evidence—tell stakeholders, “Check `/metrics` for 
 
 ---
 
-## 8. Disaster Readiness: Policies, WAL Replay, DLQ
+## 9. Disaster Readiness: Policies, WAL Replay, DLQ
 
 *Policies:* configure `policy.on_queue_full` / `on_wal_full` to `block`, `drop`, or `reject`.
 
@@ -202,7 +216,7 @@ This triad lets you state, “Even if power fails mid-burst, AegisFlow reloads t
 
 ---
 
-## 9. Hands-On Examples
+## 10. Hands-On Examples
 
 Browse [`example/`](../example/README.md) for runnable scenarios:
 
@@ -214,7 +228,7 @@ Each example is paired with a Mermaid diagram so you can see the architecture be
 
 ---
 
-## 10. Next Steps
+## 11. Next Steps
 
 - Swap the collector with MQTT, Modbus, or file replayers by implementing `aegisflow.Collector`.
 - Write a custom `Sink` when your target DB stabilises—use the callback sink as scaffolding.
