@@ -8,13 +8,6 @@
 </p>
 
 <p align="center">
-<div align="center">
-
-# AegisFlow Direct
-
-*Industrial telemetry without brokers – the backbone of my Master’s thesis.*
-
-</div>
 
 ## Why This Exists
 
