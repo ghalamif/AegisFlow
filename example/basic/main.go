@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ghalamif/AegisFlow/pkg/aegisflow"
+	"github.com/ghalamif/AegisFlow"
 )
 
 func main() {
