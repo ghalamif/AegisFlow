@@ -219,6 +219,8 @@ Need even less ceremony? Call `flow.Run(ctx, aegisflow.StreamOutSink(mySink))` a
 
 Prefer to learn by copying runnable code? Check out [`example/`](example/README.md) for three starter pipelines—default OPC UA → Timescale, callback-based “unknown DB” bridge, and channel fan-out—each paired with a Mermaid diagram that visualizes the flow.
 
+Need the full deep dive? Read the [Field Guide](docs/guide.md) for IELTS-style explanations of every feature, plus additional diagrams and walkthroughs.
+
 ## Industry-Ready Features
 
 - **Backpressure policies** – configure `policy.on_queue_full` / `policy.on_wal_full` to block or drop gracefully when storage shrinks or TSDB slows down.
