@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/AegisFlow-logo.png" alt="AegisFlow Logo" width="200"/>
+  <img src="docs/assets/AegisFlow-logo.png" alt="AegisFlow Logo" width="300" height="300/>
 </p>
 
 
