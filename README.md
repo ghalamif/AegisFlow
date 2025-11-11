@@ -2,7 +2,7 @@
   <img src="docs/assets/AegisFlow.png" alt="AegisFlow Logo" width="200"/>
 </p>
 
-<h1 align="center">AegisFlow</h1>
+
 <p align="center">
   <em>Industrial-grade data ingestion engine for high-throughput, low-latency, and guaranteed delivery</em>
 </p>
