@@ -46,9 +46,41 @@ const bannerColor =
 	"\x1b[38;5;147mMMMMMMMMW.;,XMMMMMMMMMMMMN';'xMMMMMMMMMM\n" +
 	"\x1b[38;5;183mMMMMMMMW:.',MMMMMMMMMMMMM0....,x0WMMMMMM\n" +
 	"\x1b[38;5;183mMMMMMMMk;cc'MMMMMMMMMMMMMNdolc:l:0MMMMMM\n" +
-	"\x1b[38;5;189mMMMMMMMMWKKWMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n\x1b[0m"+
-	"⚡🛡️  AegisFlow ⚡\n     Shielding Industrial Data Streams"+
-	"\n\x1b[0m"
+	"\x1b[38;5;189mMMMMMMMMWKKWMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n\x1b[0m"
+
+const bannerPlain = 
+```
+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMMMMMMXOdkXMMMMMMMMMMMMMMMMMMMMMM
+MMMMMMMMW0kxllOWMk::cOMMMMMMMMMMMMMMMMMM
+MMMMMMMMWkckcxMM:...'WMMMMMMMMMMMMMMMMMM
+MMMMMMXxccxOXMMx.'::;kMMMMMMMMMMMMMMMMMM
+MMMMMk:;lcMMMMM,,cldOcoMMMMMMMMMMMMMMMMM
+MMMWk;c;:NMMMMO..:xddo,MMMMMMMMMMMMMMMMM
+MXxd0N;x,WMMMK...;0Odo.oMMMMMMMMMMMMMMMM
+WWMMMO:d;kXXKc...cddc..oWMMMMMMMMMMMMMMM
+MMMMM0lkkxOOOxo''cOK0d..:dWN0OOOKWMMMMMM
+MMMMMMOkxddddlO:lddddldxcl:::;;;;;dOMMMM
+MMMMMMMMMMd...c::ddxdldl:l'.'',,,;.;cXMM
+MMMMMMMMNc'....c:ccloo:,l.''';;,;,,,,;NM
+MMMMMMMk''.....,:ldccc,l'''':'';,':;.:oM
+MMMMMO;''......,:co::;.c'''':':'::'',:cM
+MMMX:'''.'.....'.'':l:.,:.';,,:',,;,.:xM
+MMO''''.'.....''''.'.'..::'';,'';;'.:cMM
+MO.'''.''.'..''.'.',.'.'.'::'....,;:xMMM
+W''''.''.'...'.''.''.'.''...,cllox0MMMMM
+0.'''.'..'..:ld:c'....,c:dl..oMMMMMMMMMM
+N'''.oo.'...xKK0:.....'kKKK.'.XMMMMMMMMM
+MWd,.0MXxdl.ddx;....';::k0d:;xWMMMMMMMMM
+MMMMXNMMMN:lxc,NMWWMMMMOcoddoMMMMMMMMMMM
+MMMMMMMMMx;ol;cMMMMMMMMO,llooMMMMMMMMMMM
+MMMMMMMMMool;:WMMMMMMMMMccdolMMMMMMMMMMM
+MMMMMMMMMlol:WMMMMMMMMMMW:lx:MMMMMMMMMMM
+MMMMMMMMW.;,XMMMMMMMMMMMMN';'xMMMMMMMMMM
+MMMMMMMW:.',MMMMMMMMMMMMM0....,x0WMMMMMM
+MMMMMMMk;cc'MMMMMMMMMMMMMNdolc:l:0MMMMMM
+MMMMMMMMWKKWMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+```
 func main() {
 	fmt.Print(selectBanner())
 	fmt.Println()
@@ -113,6 +145,9 @@ func validateCommand(args []string) error {
 }
 
 func selectBanner() string {
+	if os.Getenv("NO_COLOR") != "" {
+		return bannerPlain
+	}
 	return bannerColor
 }
 
