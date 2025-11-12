@@ -20,10 +20,10 @@ aegis-edge stats -url http://localhost:9100/metrics -interval 1s
 
 ## Banner Artwork
 
-The startup banner lives in `assets/banner_color.ansi` (ANSI colors) and `assets/banner_plain.txt` (fallback). To preview the colored version locally:
+![CLI Banner](assets/banner_preview.png)
+
+The ANSI sources live in `assets/banner_color.ansi` (color) and `assets/banner_plain.txt` (fallback). Preview them in a terminal to see the live colors:
 
 ```
 cat cmd/aegis-edge/assets/banner_color.ansi
 ```
-
-Most Markdown renderers cannot display the escape codes inline, so view the file in a terminal to see the actual colors.
