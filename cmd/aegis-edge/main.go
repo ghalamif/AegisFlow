@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -16,41 +17,12 @@ import (
 	"github.com/ghalamif/AegisFlow"
 )
 
-const bannerColor = 
-	"\x1b[38;5;208mMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;208mMMMMMMMMMMMMMXOdkXMMMMMMMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;214mMMMMMMMMW0kxllOWMk::cOMMMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;214mMMMMMMMMWkckcxMM:...'WMMMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;208mMMMMMMXxccxOXMMx.'::;kMMMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;208mMMMMMk:;lcMMMMM,,cldOcoMMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;202mMMMWk;c;:NMMMMO..:xddo,MMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;202mMXxd0N;x,WMMMK...;0Odo.oMMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;196mWWMMMO:d;kXXKc...cddc..oWMMMMMMMMMMMMMMM\n" +
-	"\x1b[38;5;196mMMMMM0lkkxOOOxo''cOK0d..:dWN0OOOKWMMMMMM\n" +
-	"\x1b[38;5;160mMMMMMMOkxddddlO:lddddldxcl:::;;;;;dOMMMM\n" +
-	"\x1b[38;5;160mMMMMMMMMMMd...c::ddxdldl:l'.'',,,;.;cXMM\n" +
-	"\x1b[38;5;125mMMMMMMMMNc'....c:ccloo:,l.''';;,;,,,,;NM\n" +
-	"\x1b[38;5;125mMMMMMMMk''.....,:ldccc,l'''':'';,':;.:oM\n" +
-	"\x1b[38;5;125mMMMMMO;''......,:co::;.c'''':':'::'',:cM\n" +
-	"\x1b[38;5;93mMMMX:'''.'.....'.'':l:.,:.';,,:',,;,.:xM\n" +
-	"\x1b[38;5;93mMMO''''.'.....''''.'.'..::'';,'';;'.:cMM\n" +
-	"\x1b[38;5;93mMO.'''.''.'..''.'.',.'.'.'::'....,;:xMMM\n" +
-	"\x1b[38;5;57mW''''.''.'...'.''.''.'.''...,cllox0MMMMM\n" +
-	"\x1b[38;5;57m0.'''.'..'..:ld:c'....,c:dl..oMMMMMMMMMM\n" +
-	"\x1b[38;5;57mN'''.oo.'...xKK0:.....'kKKK.'.XMMMMMMMMM\n" +
-	"\x1b[38;5;99mMWd,.0MXxdl.ddx;....';::k0d:;xWMMMMMMMMM\n" +
-	"\x1b[38;5;99mMMMMXNMMMN:lxc,NMWWMMMMOcoddoMMMMMMMMMMM\n" +
-	"\x1b[38;5;141mMMMMMMMMMx;ol;cMMMMMMMMO,llooMMMMMMMMMMM\n" +
-	"\x1b[38;5;141mMMMMMMMMMool;:WMMMMMMMMMccdolMMMMMMMMMMM\n" +
-	"\x1b[38;5;147mMMMMMMMMMlol:WMMMMMMMMMMW:lx:MMMMMMMMMMM\n" +
-	"\x1b[38;5;147mMMMMMMMMW.;,XMMMMMMMMMMMMN';'xMMMMMMMMMM\n" +
-	"\x1b[38;5;183mMMMMMMMW:.',MMMMMMMMMMMMM0....,x0WMMMMMM\n" +
-	"\x1b[38;5;183mMMMMMMMk;cc'MMMMMMMMMMMMMNdolc:l:0MMMMMM\n" +
-	"\x1b[38;5;189mMMMMMMMMWKKWMMMMMMMMMMMMMMMMMMMMMMMMMMMM\n\x1b[0m"+
-	"⚡🛡️  AegisFlow ⚡\n Shielding Industrial Data Streams"+"\n"
+//go:embed assets/banner_color.ansi
+var bannerColor string 
 
+//go:embed assets/banner_plain.txt
+var bannerPlain string
 
-const bannerPlain = "⚡🛡️  AegisFlow ⚡\n Shielding Industrial Data Streams"
 func main() {
 	fmt.Print(selectBanner())
 	fmt.Println()
